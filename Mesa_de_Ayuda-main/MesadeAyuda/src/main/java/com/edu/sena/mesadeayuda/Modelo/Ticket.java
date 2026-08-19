@@ -115,6 +115,10 @@ public class Ticket {
         this.fechaLimiteSLA = fechaLimiteSLA;
     }
     
+    public List<Comentario> getComentarios() {
+        return comentarios;
+    }
+
     public void agregarComentario(Comentario comentario) {
         if (comentario != null) this.comentarios.add(comentario);
     }

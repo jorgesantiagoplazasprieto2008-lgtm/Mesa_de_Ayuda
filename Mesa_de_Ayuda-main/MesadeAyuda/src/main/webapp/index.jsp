@@ -1,9 +1,4 @@
-<%-- 
-    Document   : index
-    Created on : 10/08/2026, 1:22:24?p. m.
-    Author     : Dissmax
---%>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -65,15 +60,15 @@
             transform: translateY(-2px);
         }
         .login-card .roles-hint {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #6c757d;
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         .login-card .roles-hint span {
             display: inline-block;
             background: #e9ecef;
-            padding: 0.2rem 0.8rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 20px;
             margin: 0.2rem;
         }
@@ -84,21 +79,17 @@
         <div class="logo">
             <i class="fas fa-headset"></i>
             <h4>Mesa de Ayuda CIMM</h4>
-            <p>Gestión de tickets de soporte</p>
+            <p>Gestion de tickets de soporte tecnico</p>
         </div>
 
         <form action="LoginServlet" method="post">
             <div class="mb-3">
-                <label for="email" class="form-label"><i class="fas fa-envelope me-2"></i>Correo electrónico</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="usuario@cimm.edu.co" required>
+                <label for="email" class="form-label"><i class="fas fa-envelope me-2"></i>Correo electronico</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="usuario@cimm.edu.co" required autocomplete="off">
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label"><i class="fas fa-lock me-2"></i>Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="????????" required>
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="remember">
-                <label class="form-check-label" for="remember">Recordar sesión</label>
+            <div class="mb-4">
+                <label for="password" class="form-label"><i class="fas fa-lock me-2"></i>Contrasena</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required autocomplete="off">
             </div>
             <button type="submit" class="btn btn-login w-100">
                 <i class="fas fa-sign-in-alt me-2"></i>Ingresar
@@ -106,14 +97,10 @@
         </form>
 
         <div class="roles-hint">
-            <small>Credenciales de prueba:</small><br>
-            <span><i class="fas fa-user me-1"></i>solicitante@cimm.edu</span>
-            <span><i class="fas fa-user-tie me-1"></i>agente@cimm.edu</span>
+            <small class="fw-bold">Credenciales de prueba:</small><br>
+            <span><i class="fas fa-user me-1"></i>solicitante@cimm.edu</span><br>
+            <span><i class="fas fa-user-tie me-1"></i>agente@cimm.edu</span><br>
             <span><i class="fas fa-user-cog me-1"></i>admin@cimm.edu</span>
-        </div>
-
-        <div class="text-center mt-3">
-            <small class="text-muted">¿Olvidaste tu contraseña? <a href="#" class="text-primary">Recupérala aquí</a></small>
         </div>
     </div>
 
