@@ -1,0 +1,209 @@
+@startuml Diagrama_de_Clases_Mesa_de_Ayuda_SENA_CIMM
+
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+skinparam packageStyle rect
+
+package "Modelo (Dominio)" {
+    enum Rol {
+        SOLICITANTE
+        AGENTE
+        ADMIN
+    }
+
+    enum Prioridad {
+        BAJA
+        MEDIA
+        ALTA
+        CRITICA
+    }
+
+    class Usuario {
+        - id: Long
+        - nombre: String
+        - correo: String
+        - password: String
+        - rol: Rol
+        + getId(): Long
+        + getNombre(): String
+        + getCorreo(): String
+        + getRol(): Rol
+    }
+
+    class Categoria {
+        - id: Long
+        - nombre: String
+        - descripcion: String
+        + getId(): Long
+        + getNombre(): String
+    }
+
+    class Comentario {
+        - id: Long
+        - autor: Usuario
+        - texto: String
+        - fecha: LocalDateTime
+        + getAutor(): Usuario
+        + getTexto(): String
+        + getFechaFormateada(): String
+    }
+
+    class MensajeChat {
+        - id: Long
+        - ticketId: Long
+        - emisorId: Long
+        - emisorNombre: String
+        - emisorRol: String
+        - receptorId: Long
+        - texto: String
+        - fecha: LocalDateTime
+        - leido: boolean
+        + getFechaFormateada(): String
+    }
+
+    class Ticket {
+        - id: int
+        - titulo: String
+        - descripcion: String
+        - estado: EstadoTicket
+        - prioridad: Prioridad
+        - fechaCreacion: LocalDateTime
+        - fechaLimiteSLA: LocalDateTime
+        - solicitante: Usuario
+        - agente: Usuario
+        - categoria: Categoria
+        - comentarios: List<Comentario>
+        + asignarAgente(agente: Usuario)
+        + agregarComentario(c: Comentario)
+        + iniciarAtencion()
+        + resolver()
+        + cerrar()
+        + reabrir()
+    }
+}
+
+package "Patrón State (Ciclo de Vida)" {
+    interface EstadoTicket {
+        + {abstract} asignar(): EstadoTicket
+        + {abstract} iniciar(): EstadoTicket
+        + {abstract} resolver(): EstadoTicket
+        + {abstract} cerrar(): EstadoTicket
+        + {abstract} reabrir(): EstadoTicket
+        + {abstract} cancelar(): EstadoTicket
+        + {abstract} nombre(): String
+    }
+
+    class EstadoNuevo implements EstadoTicket
+    class EstadoAsignado implements EstadoTicket
+    class EstadoEnProceso implements EstadoTicket
+    class EstadoResuelto implements EstadoTicket
+    class EstadoCerrado implements EstadoTicket
+    class EstadoCancelado implements EstadoTicket
+}
+
+package "Patrón Strategy & Observer (Servicios)" {
+    interface EstrategiaAsignacion {
+        + {abstract} seleccionarAgente(t: Ticket, agentes: List<Usuario>): Optional<Usuario>
+    }
+    class AsignacionPorCategoria implements EstrategiaAsignacion
+    class AsignacionTurnoRotativo implements EstrategiaAsignacion
+    class AsignacionMenorCarga implements EstrategiaAsignacion
+
+    interface EstrategiaPrioridad {
+        + {abstract} determinarPrioridad(t: Ticket): Prioridad
+    }
+    class PriorizacionPalabrasClave implements EstrategiaPrioridad
+
+    interface EstrategiaSLA {
+        + {abstract} calcularFechaLimite(inicio: LocalDateTime): LocalDateTime
+    }
+    class SLACritico implements EstrategiaSLA
+    class SLAAlto implements EstrategiaSLA
+    class SLAMedio implements EstrategiaSLA
+    class SLABajo implements EstrategiaSLA
+
+    interface Notificador {
+        + {abstract} notificar(destinatario: Usuario, ticket: Ticket, mensaje: String)
+    }
+    class NotificacionConsola implements Notificador
+    class NotificacionEmailMock implements Notificador
+    class NotificacionEnApp implements Notificador
+    class NotificadorCompuesto implements Notificador {
+        - notificadores: List<Notificador>
+        + agregarNotificador(n: Notificador)
+    }
+}
+
+package "Repositorios (DIP & Persistencia)" {
+    interface UsuarioRepository {
+        + {abstract} guardar(u: Usuario): Usuario
+        + {abstract} buscarPorId(id: Long): Optional<Usuario>
+        + {abstract} buscarPorCorreo(correo: String): Optional<Usuario>
+        + {abstract} buscarPorRol(r: Rol): List<Usuario>
+    }
+
+    interface TicketRepository {
+        + {abstract} guardar(t: Ticket): Ticket
+        + {abstract} actualizar(t: Ticket): Ticket
+        + {abstract} buscarPorId(id: Long): Optional<Ticket>
+    }
+
+    interface ComentarioRepository {
+        + {abstract} guardar(ticketId: Long, c: Comentario): Comentario
+        + {abstract} buscarPorTicket(ticketId: Long): List<Comentario>
+    }
+
+    interface ChatRepository {
+        + {abstract} guardar(m: MensajeChat): MensajeChat
+        + {abstract} obtenerMensajesPorTicket(ticketId: Long): List<MensajeChat>
+    }
+
+    class UsuarioRepositoryJdbc implements UsuarioRepository
+    class TicketRepositoryJdbc implements TicketRepository
+    class ComentarioRepositoryJdbc implements ComentarioRepository
+    class ChatRepositoryJdbc implements ChatRepository
+}
+
+package "Capa Negocio & Controladores (MVC)" {
+    class TicketService {
+        - ticketRepo: TicketRepository
+        - usuarioRepo: UsuarioRepository
+        - categoriaRepo: CategoriaRepository
+        - comentarioRepo: ComentarioRepository
+        - estrategiaAsignacion: EstrategiaAsignacion
+        - notificador: Notificador
+        - estrategiaPrioridad: EstrategiaPrioridad
+        + crearTicket(t: Ticket, catId: Long): Ticket
+        + atenderTicket(id: Long, u: Usuario)
+        + resolverTicket(id: Long, u: Usuario)
+        + cerrarTicket(id: Long, u: Usuario)
+        + reabrirTicket(id: Long, u: Usuario)
+    }
+
+    class TicketServlet
+    class DashboardServlet
+    class ChatServlet
+}
+
+' Relaciones principales
+Usuario "1" --> "1" Rol
+Ticket "*" --> "1" Usuario : solicitante
+Ticket "*" --> "0..1" Usuario : agente
+Ticket "*" --> "1" Categoria
+Ticket "1" *-- "*" Comentario
+Ticket "1" --> "1" Prioridad
+Ticket "1" o-- "1" EstadoTicket : estado
+
+TicketService "1" --> "1" TicketRepository
+TicketService "1" --> "1" UsuarioRepository
+TicketService "1" --> "1" ComentarioRepository
+TicketService "1" --> "1" EstrategiaAsignacion
+TicketService "1" --> "1" Notificador
+TicketService "1" --> "1" EstrategiaPrioridad
+
+TicketServlet --> TicketService
+ChatServlet --> ChatRepository
+ChatServlet --> TicketService
+DashboardServlet --> TicketRepository
+
+@enduml

@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Composition Root de la aplicación Mesa de Ayuda SENA CIMM para Tomcat 11 / Jakarta EE.
+ * Composition Root de la aplicación Mesa de Ayuda SENA CIMM.
  */
 public class AppContextListener implements ServletContextListener {
 
@@ -33,6 +33,7 @@ public class AppContextListener implements ServletContextListener {
         CategoriaRepository categoriaRepo;
         TicketRepository ticketRepo;
         ComentarioRepository comentarioRepo;
+        ChatRepository chatRepo;
 
         try {
             if (probarConexionDB()) {
@@ -41,12 +42,14 @@ public class AppContextListener implements ServletContextListener {
                 categoriaRepo = new CategoriaRepositoryJdbc();
                 ticketRepo = new TicketRepositoryJdbc(usuarioRepo, categoriaRepo);
                 comentarioRepo = new ComentarioRepositoryJdbc(usuarioRepo);
+                chatRepo = new ChatRepositoryJdbc();
             } else {
                 LOGGER.info("[PERSISTENCIA FALLBACK] Activando repositorios en Memoria pre-poblados.");
                 usuarioRepo = new UsuarioRepositoryMemoria();
                 categoriaRepo = new CategoriaRepositoryMemoria();
                 ticketRepo = new TicketRepositoryMemoria();
                 comentarioRepo = new ComentarioRepositoryMemoria();
+                chatRepo = new ChatRepositoryMemoria();
             }
 
             NotificadorCompuesto notificador = new NotificadorCompuesto();
@@ -68,6 +71,7 @@ public class AppContextListener implements ServletContextListener {
             sc.setAttribute("categoriaRepository", categoriaRepo);
             sc.setAttribute("ticketRepository", ticketRepo);
             sc.setAttribute("comentarioRepository", comentarioRepo);
+            sc.setAttribute("chatRepository", chatRepo);
             sc.setAttribute("ticketService", ticketService);
 
             LOGGER.info(">>> Contexto de Aplicación configurado e inyectado con éxito <<<");
@@ -78,12 +82,14 @@ public class AppContextListener implements ServletContextListener {
                 categoriaRepo = new CategoriaRepositoryMemoria();
                 ticketRepo = new TicketRepositoryMemoria();
                 comentarioRepo = new ComentarioRepositoryMemoria();
+                chatRepo = new ChatRepositoryMemoria();
                 TicketService ticketService = new TicketService(ticketRepo, usuarioRepo, categoriaRepo, comentarioRepo);
 
                 sc.setAttribute("usuarioRepository", usuarioRepo);
                 sc.setAttribute("categoriaRepository", categoriaRepo);
                 sc.setAttribute("ticketRepository", ticketRepo);
                 sc.setAttribute("comentarioRepository", comentarioRepo);
+                sc.setAttribute("chatRepository", chatRepo);
                 sc.setAttribute("ticketService", ticketService);
             } catch (Throwable ignored) {
                 LOGGER.log(Level.SEVERE, "Fallo crítico en repositorios defensivos", ignored);

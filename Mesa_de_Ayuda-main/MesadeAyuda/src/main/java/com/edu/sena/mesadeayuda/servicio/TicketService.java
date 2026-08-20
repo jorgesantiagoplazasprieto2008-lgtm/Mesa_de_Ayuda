@@ -167,15 +167,10 @@ public class TicketService {
         });
     }
 
-    public void reabrirTicket(Long ticketId, Usuario usuarioAccion) {
+    public void reabrirTicket(Long ticketId, Usuario solicitante) {
         buscarTicketPorId(ticketId).ifPresent(t -> {
-            boolean esAdmin = usuarioAccion != null && usuarioAccion.getRol() == Rol.ADMIN;
-            boolean esSolicitante = t.getSolicitante() != null && usuarioAccion != null && t.getSolicitante().getId().equals(usuarioAccion.getId());
-            boolean estaCerrado = t.getEstado() != null && "CERRADO".equalsIgnoreCase(t.getEstado().nombre());
-
-            if (estaCerrado && !esAdmin) {
-                throw new SecurityException("Solo un Administrador puede reabrir un ticket que ya ha sido CERRADO.");
-            }
+            boolean esAdmin = solicitante != null && solicitante.getRol() == Rol.ADMIN;
+            boolean esSolicitante = t.getSolicitante() != null && solicitante != null && t.getSolicitante().getId().equals(solicitante.getId());
 
             if (esSolicitante || esAdmin) {
                 t.setEstado(t.getEstado().reabrir());
@@ -189,7 +184,7 @@ public class TicketService {
                             "¡Atención! El ticket #" + t.getId() + " ('" + t.getTitulo() + "') fue REABIERTO.");
                 }
             } else {
-                throw new SecurityException("No tiene permisos para reabrir este ticket.");
+                throw new SecurityException("Solo el Solicitante del ticket o un Administrador pueden reabrirlo.");
             }
         });
     }

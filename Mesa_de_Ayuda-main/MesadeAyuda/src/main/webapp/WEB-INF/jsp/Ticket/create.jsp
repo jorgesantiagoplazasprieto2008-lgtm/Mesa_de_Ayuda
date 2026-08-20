@@ -41,6 +41,7 @@
                     <c:if test="${sessionScope.usuarioLogueado.rol == 'SOLICITANTE'}">
                         <li class="nav-item"><a class="nav-link active" href="${pageContext.request.contextPath}/TicketServlet?action=create"><i class="fas fa-plus-circle me-2"></i>Crear Ticket</a></li>
                     </c:if>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/ChatServlet"><i class="fas fa-comments me-2"></i>Chat en Vivo</a></li>
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/ConfiguracionServlet"><i class="fas fa-gear me-2"></i>Configuración</a></li>
                 </ul>
             </nav>

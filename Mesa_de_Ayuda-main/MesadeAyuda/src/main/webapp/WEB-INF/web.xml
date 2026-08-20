@@ -61,4 +61,13 @@
         <url-pattern>/ConfiguracionServlet</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ChatServlet</servlet-name>
+        <servlet-class>com.edu.sena.mesadeayuda.web.ChatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ChatServlet</servlet-name>
+        <url-pattern>/ChatServlet</url-pattern>
+    </servlet-mapping>
+
 </web-app>

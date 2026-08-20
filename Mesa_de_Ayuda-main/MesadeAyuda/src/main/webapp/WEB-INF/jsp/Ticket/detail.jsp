@@ -42,6 +42,7 @@
                     <c:if test="${sessionScope.usuarioLogueado.rol == 'SOLICITANTE'}">
                         <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/TicketServlet?action=create"><i class="fas fa-plus-circle me-2"></i>Crear Ticket</a></li>
                     </c:if>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/ChatServlet"><i class="fas fa-comments me-2"></i>Chat en Vivo</a></li>
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/ConfiguracionServlet"><i class="fas fa-gear me-2"></i>Configuración</a></li>
                 </ul>
             </nav>
@@ -49,9 +50,16 @@
             <main class="col-md-10 ms-sm-auto px-md-4 py-4">
                 <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
                     <h1 class="h2">Ticket <span class="text-primary">#T-${ticket.id}</span></h1>
-                    <a href="${pageContext.request.contextPath}/TicketServlet?action=list" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Volver a la lista
-                    </a>
+                    <div class="d-flex gap-2">
+                        <c:if test="${not empty ticketDominio.agente}">
+                            <a href="${pageContext.request.contextPath}/ChatServlet?ticketId=${ticket.id}" class="btn btn-success">
+                                <i class="fas fa-comments me-1"></i>Abrir Chat en Vivo
+                            </a>
+                        </c:if>
+                        <a href="${pageContext.request.contextPath}/TicketServlet?action=list" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Volver a la lista
+                        </a>
+                    </div>
                 </div>
 
                 <c:if test="${not empty param.error}">
@@ -77,7 +85,7 @@
 
                                 <!-- Botones de Acciones del Patrón State -->
                                 <div class="d-flex flex-wrap gap-2 align-items-center">
-                                    <span class="fw-bold me-2">Acciones (Estado State):</span>
+                                    <span class="fw-bold me-2">Acciones de Ticket:</span>
 
                                     <!-- Agente / Admin: Atender ticket si está ASIGNADO -->
                                     <c:if test="${ticket.estadoNombre == 'ASIGNADO' && (sessionScope.usuarioLogueado.rol == 'AGENTE' || sessionScope.usuarioLogueado.rol == 'ADMIN')}">
@@ -101,8 +109,8 @@
                                         </form>
                                     </c:if>
 
-                                    <!-- Solicitante / Admin: Cerrar o Reabrir ticket si está RESUELTO -->
-                                    <c:if test="${ticket.estadoNombre == 'RESUELTO'}">
+                                    <!-- Solicitante / Admin: Confirmar Cierre si está RESUELTO -->
+                                    <c:if test="${ticket.estadoNombre == 'RESUELTO' && (sessionScope.usuarioLogueado.rol == 'SOLICITANTE' || sessionScope.usuarioLogueado.rol == 'ADMIN')}">
                                         <form action="${pageContext.request.contextPath}/TicketServlet" method="post" class="d-inline">
                                             <input type="hidden" name="action" value="cerrar">
                                             <input type="hidden" name="id" value="${ticket.id}">
@@ -110,22 +118,15 @@
                                                 <i class="fas fa-lock me-1"></i>Confirmar y Cerrar
                                             </button>
                                         </form>
-                                        <form action="${pageContext.request.contextPath}/TicketServlet" method="post" class="d-inline">
-                                            <input type="hidden" name="action" value="reabrir">
-                                            <input type="hidden" name="id" value="${ticket.id}">
-                                            <button type="submit" class="btn btn-secondary">
-                                                <i class="fas fa-undo me-1"></i>Reabrir Ticket
-                                            </button>
-                                        </form>
                                     </c:if>
 
-                                    <!-- Exclusivo Admin: Reabrir ticket que ya fue CERRADO -->
-                                    <c:if test="${ticket.estadoNombre == 'CERRADO' && sessionScope.usuarioLogueado.rol == 'ADMIN'}">
+                                    <!-- Solicitante / Admin: Reabrir ticket si está RESUELTO o CERRADO -->
+                                    <c:if test="${(ticket.estadoNombre == 'RESUELTO' || ticket.estadoNombre == 'CERRADO') && (sessionScope.usuarioLogueado.rol == 'SOLICITANTE' || sessionScope.usuarioLogueado.rol == 'ADMIN')}">
                                         <form action="${pageContext.request.contextPath}/TicketServlet" method="post" class="d-inline">
                                             <input type="hidden" name="action" value="reabrir">
                                             <input type="hidden" name="id" value="${ticket.id}">
                                             <button type="submit" class="btn btn-warning">
-                                                <i class="fas fa-rotate-left me-1"></i>Reabrir Ticket (Solo Admin)
+                                                <i class="fas fa-rotate-left me-1"></i>Reabrir Ticket
                                             </button>
                                         </form>
                                     </c:if>
